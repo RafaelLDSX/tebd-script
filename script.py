@@ -1,6 +1,5 @@
 import requests
 import xml.etree.ElementTree as ET
-import json, xmljson
 
 loginUrl = "https://pub.orcid.org/oauth/token"
 
