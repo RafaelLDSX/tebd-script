@@ -1,5 +1,4 @@
 import requests
-import xml.etree.ElementTree as ET
 from xml.dom import minidom
 
 loginUrl = "https://pub.orcid.org/oauth/token"
