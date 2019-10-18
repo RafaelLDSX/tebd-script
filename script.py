@@ -1,10 +1,11 @@
+from settings import *
 import requests
 from xml.dom import minidom
 
 loginUrl = "https://pub.orcid.org/oauth/token"
 
-loginData = {'client_id':'APP-FVIDJFTXXIGC984E',
-		'client_secret':'acde52e3-3b0a-41fa-b89f-e5ecb7828438',
+loginData = {'client_id':client_id,
+		'client_secret':client_secret,
 		'grant_type':'client_credentials',
 		'scope':'/read-public'} 
 
