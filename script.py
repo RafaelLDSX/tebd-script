@@ -1,5 +1,6 @@
 import requests
 import xml.etree.ElementTree as ET
+from xml.dom import minidom
 
 loginUrl = "https://pub.orcid.org/oauth/token"
 
@@ -18,13 +19,14 @@ searchData = {	'Content-type':'application/vnd.orcid+xml',
 
 searchResponse = requests.get(url = searchUrl, data = searchData)
 
-root = ET.fromstring(searchResponse.text)
+IDsXML = minidom.parseString(searchResponse.text);
 
-for id in root.findall('.//{http://www.orcid.org/ns/common}path'):
-	searchRecord = "https://pub.orcid.org/v3.0/" + id.text + "/personal-details"
-	recordResponse = requests.get(url = searchRecord, data = searchData)
-	
-	recordRoot = ET.fromstring(recordResponse.text)
-	firstName = recordRoot.find(".//{http://www.orcid.org/ns/personal-details}given-names").text
-	lastName = recordRoot.find(".//{http://www.orcid.org/ns/personal-details}family-name").text
-	print(firstName + " " + lastName)
+IDs = IDsXML.getElementsByTagName("common:path")
+
+f = open("test.xml", "w+")
+
+searchRecord = "https://pub.orcid.org/v3.0/" + IDs[0].firstChild.data + "/activities"
+recordResponse = requests.get(url = searchRecord, data = searchData)
+
+f.write(recordResponse.text)
+f.close()
