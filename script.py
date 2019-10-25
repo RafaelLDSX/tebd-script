@@ -2,6 +2,14 @@ from settings import *
 import requests
 from xml.dom import minidom
 
+def obter_record_xml(orcId):
+	request_data = {'Content-type':'application/vnd.orcid+xml',
+					'Authorization type':'Bearer',
+					'Access token':loginInfo["access_token"] }
+	request_url = "https://pub.orcid.org/v3.0/" + str(orcId) + "/record"
+	request_response = requests.get(url = request_url, data = request_data)
+	return request_response.text
+
 loginUrl = "https://pub.orcid.org/oauth/token"
 
 loginData = {'client_id':client_id,
@@ -23,10 +31,17 @@ IDsXML = minidom.parseString(searchResponse.text);
 
 IDs = IDsXML.getElementsByTagName("common:path")
 
-f = open("test.xml", "w+")
+f = open("test2.xml", "w+")
 
-searchRecord = "https://pub.orcid.org/v3.0/" + IDs[0].firstChild.data + "/activities"
-recordResponse = requests.get(url = searchRecord, data = searchData)
+xml_record = obter_record_xml(IDs[0].firstChild.data)
 
-f.write(recordResponse.text)
+f.write(obter_nome(xml_record))
 f.close()
+
+def xml_para_dom(xml):
+	return minidom.parseString(str(xml))
+
+def obter_nome(xml_dom):
+	primeiro_nome = xml_dom.getElementsByTagName("personal-details:given-names")
+	nome_de_familia = xml_dom.getLementsByTagName("personal-details:family-name")
+	
