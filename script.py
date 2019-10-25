@@ -8,7 +8,7 @@ def obter_record_xml(orcId):
 					'Access token':loginInfo["access_token"] }
 	request_url = "https://pub.orcid.org/v3.0/" + str(orcId) + "/record"
 	request_response = requests.get(url = request_url, data = request_data)
-	return request_response.text
+	return request_response.text.encode('utf-8')
 
 loginUrl = "https://pub.orcid.org/oauth/token"
 
@@ -20,28 +20,34 @@ loginData = {'client_id':client_id,
 loginResponse = requests.post(url = loginUrl, data = loginData)
 loginInfo = loginResponse.json()
 
-searchUrl = "https://pub.orcid.org/v3.0/search/?q=affiliation-org-name:(%22Universidade%20\Federal%20Rural%20Do%20Rio%20De%20Janeiro%22+OR+UFRRJ)"
+searchUrl = "https://pub.orcid.org/v3.0/search/?q=affiliation-org-name:(%22Universidade%20\Federal%20Rural%20Do%20Rio%20De%20Janeiro%22+OR+UFRRJ)&start=0&rows=200"
 searchData = {	'Content-type':'application/vnd.orcid+xml',
 			  	'Authorization type':'Bearer',
 			  	'Access token':loginInfo["access_token"] }
 
 searchResponse = requests.get(url = searchUrl, data = searchData)
 
-IDsXML = minidom.parseString(searchResponse.text);
 
-IDs = IDsXML.getElementsByTagName("common:path")
 
-f = open("test2.xml", "w+")
+start = 0
 
-xml_record = obter_record_xml(IDs[0].firstChild.data)
+while(len(IDs) > 0):
+	
+	for id in IDs:
+		print(id.firstChild.data)
+		f.write(obter_record_xml(id.firstChild.data))
 
-f.write(obter_nome(xml_record))
+	start += 200
+
+	searchUrl = "https://pub.orcid.org/v3.0/search/?q=affiliation-org-name:(%22Universidade%20\Federal%20Rural%20Do%20Rio%20De%20Janeiro%22+OR+UFRRJ)&start=" + start + "&rows=200"
+
+	searchResponse = requests.get(url = searchUrl, data = searchData)
+
+	xml_dom = minidom.parseString(searchResponse.text);
+
+	IDs = xml_dom.getElementsByTagName("common:path")
+
 f.close()
 
-def xml_para_dom(xml):
-	return minidom.parseString(str(xml))
 
-def obter_nome(xml_dom):
-	primeiro_nome = xml_dom.getElementsByTagName("personal-details:given-names")
-	nome_de_familia = xml_dom.getLementsByTagName("personal-details:family-name")
 	
